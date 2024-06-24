@@ -54,31 +54,25 @@ export const dataProvider: DataProvider = {
     );
     return { data: response.json };
   },
-  deleteMany: async (resource, { ids }) => {
+  deleteMany: async (resource, params) => {
     const accessToken = getTokenFromLocalStorage();
     const headers = new Headers({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${accessToken}`
     });
 
-    const requests = ids.map((id) => ({
-      method: 'DELETE',
-      headers: headers
-    }));
+    const deletePromises = params.ids.map(async (id) => {
+      const response = await fetchUtils.fetchJson(
+          `${API_URL}/${resource}/Delete/${id}`,
+          {
+              method: "DELETE",
+              headers: headers
+          }
+      );
+      return response.json;
+  });
 
-    const responses = await Promise.allSettled(requests.map((request) => {
-      const { method, headers } = request;
-      const url = `${API_URL}/${resource}/Delete/${params.id}`; // Предполагаю, что params.id должно быть заменено на конкретный ID
-
-      return fetchUtils.fetchJson(url, {
-        method,
-        headers
-      });
-    }));
-
-    // Преобразуем ответы в массив данных
-    const data = responses.map((res) => res.value?.json).filter(Boolean);
-
-    return { data };
+  const results = await Promise.all(deletePromises);
+  return { data: results.map(result => result.id) };
   }
 }

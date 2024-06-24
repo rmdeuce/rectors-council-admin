@@ -31,6 +31,8 @@ export const authProvider: AuthProvider = {
 				
 				const data = await response.json();
 				localStorage.setItem('auth', JSON.stringify(data));
+				console.log(localStorage.getItem('auth'));
+
 			} catch(error) {
 				console.error(error);
 			}
@@ -46,16 +48,16 @@ export const authProvider: AuthProvider = {
 	},
 	logout: () => {
 		localStorage.removeItem('auth');
-		console.log("Метод logout");
 		return Promise.resolve();
 	},
 	getIdentity: () => {
-		console.log("Установка пользовательских данных");
+		
 		const authString = localStorage.getItem('auth');
 		const authStringObj = JSON.parse(authString);
 		const accessToken = authStringObj.access_token;
-		console.log(accessToken);
+		
 		const userData = decodeToken(accessToken);
+		
 		return Promise.resolve({
 			fullName: userData.name,
 			email: userData.email
