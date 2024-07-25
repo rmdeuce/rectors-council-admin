@@ -1,4 +1,6 @@
 import { DataProvider, fetchUtils } from 'react-admin';
+import RouteConfig from './components/Utils/RouteConfig';
+import routeConfig from './components/Utils/RouteConfig';
 
 const API_URL = import.meta.env.VITE_JSON_SERVER_URL
 
@@ -10,9 +12,13 @@ const getTokenFromLocalStorage = () => {
 
 export const dataProvider: DataProvider = {
   getList: async (resource) => {
+    const config = routeConfig[resource];
     const response = await fetchUtils.fetchJson(`${API_URL}/${resource}/GetAll`);
+    console.log(config);
+    console.log(config.key);
+    
     return {
-      data: response.json['councils'],
+      data: response.json[config.key],
       total: parseInt(response.headers.get("x-total-count") || "", 10),
     };
   },

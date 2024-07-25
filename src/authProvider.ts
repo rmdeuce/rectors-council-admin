@@ -31,7 +31,6 @@ export const authProvider: AuthProvider = {
 				
 				const data = await response.json();
 				localStorage.setItem('auth', JSON.stringify(data));
-				console.log(localStorage.getItem('auth'));
 
 			} catch(error) {
 				console.error(error);
