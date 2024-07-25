@@ -19,21 +19,26 @@ export const authProvider: AuthProvider = {
 			body: data,
 			headers: new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' }),
 		});
-		return fetch(request)
-			.then(response => {
+
+		async function fetchToken()
+		{
+			try {
+				const response = await fetch(request);
+
 				if (response.status < 200 || response.status >= 300) {
 					throw new Error(response.statusText);
 				}
-				console.log("Status code 200")
-				return response.json();
-			})
-			.then(auth => {
-				localStorage.setItem('auth', JSON.stringify(auth));
-				console.log("Токен сохранен в хранилище")
-			})
-			.catch(() => {
-				throw new Error('Network error')
-			});
+				
+				const data = await response.json();
+				localStorage.setItem('auth', JSON.stringify(data));
+
+			} catch(error) {
+				console.error(error);
+			}
+		}
+
+		const tokens = fetchToken();
+		return tokens;
 	},
 	checkAuth: () => {
 		return localStorage.getItem('auth')
@@ -42,16 +47,16 @@ export const authProvider: AuthProvider = {
 	},
 	logout: () => {
 		localStorage.removeItem('auth');
-		console.log("Метод logout");
 		return Promise.resolve();
 	},
 	getIdentity: () => {
-		console.log("Установка пользовательских данных");
+		
 		const authString = localStorage.getItem('auth');
 		const authStringObj = JSON.parse(authString);
 		const accessToken = authStringObj.access_token;
-		console.log(accessToken);
+		
 		const userData = decodeToken(accessToken);
+		
 		return Promise.resolve({
 			fullName: userData.name,
 			email: userData.email
